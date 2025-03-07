@@ -266,20 +266,56 @@ const TorneoBracket = () => {
       }
 
       // Actualizar losers bracket
-      const perdedor = partido.resultado.ganador === partido.jugador1.id ? 
-        partido.jugador2 : partido.jugador1;
-      
-      const loserRondaIndex = rondaIndex === 0 ? 0 : rondaIndex * 2 - 1;
+      const perdedor =
+        partido.resultado.ganador === partido.jugador1.id
+          ? partido.jugador2
+          : partido.jugador1;
+
+      // Determinar a qué ronda del losers bracket va el perdedor
+      let loserRondaIndex;
+      if (rondaIndex === 0) {
+        // Los perdedores de la primera ronda del winners van a la primera ronda del losers
+        loserRondaIndex = 0;
+      } else {
+        // Los perdedores de las siguientes rondas van a rondas específicas del losers
+        // En un bracket de doble eliminación, siguen un patrón específico
+        loserRondaIndex = rondaIndex * 2 - 1;
+      }
+
+      // Asegurarse de que la ronda existe
       if (bracket.losers.rondas[loserRondaIndex]) {
-        const loserMatchIndex = Math.floor((parseInt(partidoId.split('_m')[1]) - 1) / 2);
+        // Calcular el índice del partido en el losers bracket
+        let loserMatchIndex;
+        const matchNumber = parseInt(partidoId.split("_m")[1]);
         
-        if (bracket.losers.rondas[loserRondaIndex][loserMatchIndex]) {
+        if (rondaIndex === 0) {
+          // Primera ronda: distribución especial
+          loserMatchIndex = Math.floor((matchNumber - 1) / 2);
+        } else {
+          // Rondas siguientes
+          loserMatchIndex = Math.floor((matchNumber - 1) / 2);
+        }
+
+        // Asegurarse de que el partido existe
+        if (bracket.losers.rondas[loserRondaIndex] && 
+            bracket.losers.rondas[loserRondaIndex][loserMatchIndex]) {
           const loserPartido = bracket.losers.rondas[loserRondaIndex][loserMatchIndex];
-          
-          if (!loserPartido.jugador1.id || loserPartido.jugador1.id === 'bye') {
-            loserPartido.jugador1 = perdedor;
+
+          // Determinar si va como jugador1 o jugador2
+          if (rondaIndex === 0) {
+            // En la primera ronda, se asignan alternando
+            if (matchNumber % 2 === 1) {
+              loserPartido.jugador1 = perdedor;
+            } else {
+              loserPartido.jugador2 = perdedor;
+            }
           } else {
-            loserPartido.jugador2 = perdedor;
+            // En las otras rondas, el patrón es diferente
+            if (!loserPartido.jugador1.id || loserPartido.jugador1.id === "bye") {
+              loserPartido.jugador1 = perdedor;
+            } else {
+              loserPartido.jugador2 = perdedor;
+            }
           }
         }
       }
