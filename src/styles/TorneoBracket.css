@@ -1,0 +1,124 @@
+.bracket-container {
+  display: flex;
+  overflow-x: auto;
+  padding-bottom: 20px;
+}
+
+.ronda {
+  margin: 0 20px;
+  min-width: 250px;
+}
+
+.partidos {
+  display: flex;
+  flex-direction: column;
+}
+
+.partido {
+  margin: 10px 0;
+}
+
+.match-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.jugador {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.jugador.ganador {
+  background-color: #d4edda;
+  font-weight: bold;
+}
+
+.score {
+  font-weight: bold;
+  min-width: 30px;
+  text-align: center;
+}
+
+.resultado-final {
+  margin-top: 10px;
+  font-weight: bold;
+  text-align: center;
+  color: #28a745;
+}
+
+.gran-final {
+  margin-top: 40px;
+  border-top: 2px solid #333;
+  padding-top: 20px;
+}
+
+.gran-final .match-card {
+  max-width: 400px;
+  margin: 0 auto;
+  background-color: #f0f8ff;
+  border: 2px solid #007bff;
+}
+
+.admin-controls {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.admin-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+button {
+  padding: 6px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0069d9;
+}
+
+input[type="number"] {
+  width: 50px;
+  padding: 5px;
+  text-align: center;
+}
+
+/* Estilos adicionales para mejorar el bracket */
+.torneo-bracket {
+  font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.winners-bracket, .losers-bracket {
+  margin-bottom: 30px;
+}
+
+h1, h2, h3 {
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 25px;
+}
+
+h2 {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+} 
