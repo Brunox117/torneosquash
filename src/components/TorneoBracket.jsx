@@ -242,108 +242,71 @@ const TorneoBracket = () => {
       .catch(error => console.error('Error al actualizar resultado:', error));
   };
   
-  // Función para actualizar los siguientes partidos basados en el resultado
-  const actualizarSiguientesPartidos = (bracket, tipo, rondaIndex, partidoId, ganadorId) => {
-    // Obtener información del jugador ganador
+    const actualizarSiguientesPartidos = (bracket, tipo, rondaIndex, partidoId, ganadorId) => {
     let jugadorGanador;
     
     if (tipo === 'winners') {
-      // Usar un nombre de variable diferente para evitar redeclaración
-      const partidoActual = bracket.winners.rondas[rondaIndex].find(p => p.id === partidoId);
-      jugadorGanador = partidoActual.resultado.ganador === partidoActual.jugador1.id ? 
-        partidoActual.jugador1 : partidoActual.jugador2;
-        
-      // Actualizar el siguiente partido en winners bracket
+      const partido = bracket.winners.rondas[rondaIndex].find(p => p.id === partidoId);
+      jugadorGanador = partido.resultado.ganador === partido.jugador1.id ? 
+        partido.jugador1 : partido.jugador2;
+
+      // Actualizar siguiente partido en winners
       if (rondaIndex < bracket.winners.rondas.length - 1) {
         const nextRonda = bracket.winners.rondas[rondaIndex + 1];
-        // Corregir el cálculo del índice para el siguiente partido
-        const partidoIdNum = parseInt(partidoId.split('_')[2].substring(1));
-        const matchIndex = Math.floor((partidoIdNum - 1) / 2);
+        const matchNumber = parseInt(partidoId.split('_m')[1]);
+        const nextMatchIndex = Math.floor((matchNumber - 1) / 2);
         
-        // Verificar que el índice es válido
-        if (matchIndex >= 0 && matchIndex < nextRonda.length) {
-          const nextPartido = nextRonda[matchIndex];
+        if (nextRonda[nextMatchIndex]) {
+          if (matchNumber % 2 === 1) {
+            nextRonda[nextMatchIndex].jugador1 = jugadorGanador;
+          } else {
+            nextRonda[nextMatchIndex].jugador2 = jugadorGanador;
+          }
+        }
+      }
+
+      // Actualizar losers bracket
+      const perdedor = partido.resultado.ganador === partido.jugador1.id ? 
+        partido.jugador2 : partido.jugador1;
+      
+      const loserRondaIndex = rondaIndex === 0 ? 0 : rondaIndex * 2 - 1;
+      if (bracket.losers.rondas[loserRondaIndex]) {
+        const loserMatchIndex = Math.floor((parseInt(partidoId.split('_m')[1]) - 1) / 2);
+        
+        if (bracket.losers.rondas[loserRondaIndex][loserMatchIndex]) {
+          const loserPartido = bracket.losers.rondas[loserRondaIndex][loserMatchIndex];
           
-          if (nextPartido) {
-            // Determinar si es jugador1 o jugador2 basado en el índice
-            if (partidoIdNum % 2 === 1) {
+          if (!loserPartido.jugador1.id || loserPartido.jugador1.id === 'bye') {
+            loserPartido.jugador1 = perdedor;
+          } else {
+            loserPartido.jugador2 = perdedor;
+          }
+        }
+      }
+    } 
+    else if (tipo === 'losers') {
+      const partido = bracket.losers.rondas[rondaIndex].find(p => p.id === partidoId);
+      jugadorGanador = partido.resultado.ganador === partido.jugador1.id ? 
+        partido.jugador1 : partido.jugador2;
+
+      // Calcular siguiente ronda en losers
+      const nextRondaIndex = rondaIndex + 1;
+      if (nextRondaIndex < bracket.losers.rondas.length) {
+        const nextMatchIndex = Math.floor((parseInt(partidoId.split('_m')[1]) - 1) / 2);
+        
+        if (bracket.losers.rondas[nextRondaIndex][nextMatchIndex]) {
+          const nextPartido = bracket.losers.rondas[nextRondaIndex][nextMatchIndex];
+          
+          if (rondaIndex % 2 === 0) {
+            nextPartido.jugador1 = jugadorGanador;
+          } else {
+            if (nextMatchIndex % 2 === 0) {
               nextPartido.jugador1 = jugadorGanador;
             } else {
               nextPartido.jugador2 = jugadorGanador;
             }
           }
         }
-      } else {
-        // Si es la final del winners bracket, actualizar la gran final
-        bracket.final.jugador1 = jugadorGanador;
-      }
-      
-      // El perdedor va al losers bracket
-      // Usar un nombre de variable diferente
-      const perdedorInfo = bracket.winners.rondas[rondaIndex].find(p => p.id === partidoId);
-      const jugadorPerdedor = perdedorInfo.resultado.ganador === perdedorInfo.jugador1.id ? 
-        perdedorInfo.jugador2 : perdedorInfo.jugador1;
-        
-      // Calcular a qué ronda del losers bracket va el perdedor
-      // Para brackets de doble eliminación, los perdedores van a diferentes rondas del losers bracket
-      // dependiendo de en qué ronda del winners bracket perdieron
-      const loserRondaIndex = rondaIndex * 2;
-      
-      if (loserRondaIndex < bracket.losers.rondas.length) {
-        // Corregir el cálculo del índice para el losers bracket
-        const partidoIdNum = parseInt(partidoId.split('_')[2].substring(1));
-        const loserMatchIndex = Math.floor((partidoIdNum - 1) / 2);
-        
-        // Verificar que hay suficientes partidos en esa ronda
-        if (loserMatchIndex >= 0 && loserMatchIndex < bracket.losers.rondas[loserRondaIndex].length) {
-          const loserPartido = bracket.losers.rondas[loserRondaIndex][loserMatchIndex];
-          
-          if (loserPartido) {
-            // Determinar si va como jugador1 o jugador2
-            if (partidoIdNum % 2 === 1) {
-              loserPartido.jugador1 = jugadorPerdedor;
-            } else {
-              loserPartido.jugador2 = jugadorPerdedor;
-            }
-          }
-        }
-      }
-    } else if (tipo === 'losers') {
-      // También cambiar el nombre de esta variable
-      const partidoLosers = bracket.losers.rondas[rondaIndex].find(p => p.id === partidoId);
-      jugadorGanador = partidoLosers.resultado.ganador === partidoLosers.jugador1.id ? 
-        partidoLosers.jugador1 : partidoLosers.jugador2;
-        
-      // Actualizar el siguiente partido en losers bracket
-      if (rondaIndex < bracket.losers.rondas.length - 1) {
-        const nextRonda = bracket.losers.rondas[rondaIndex + 1];
-        // Corregir el cálculo del índice para la siguiente ronda de losers
-        const partidoIdNum = parseInt(partidoId.split('_')[2].substring(1));
-        let matchIndex = Math.floor((partidoIdNum - 1) / 2);
-        
-        // Asegurarse de que el índice es válido
-        if (matchIndex >= 0 && matchIndex < nextRonda.length) {
-          const nextPartido = nextRonda[matchIndex];
-          
-          if (nextPartido) {
-            // La lógica para determinar en qué posición va el ganador del losers bracket
-            // es diferente según si la ronda es par o impar
-            if (rondaIndex % 2 === 0) {
-              // En rondas pares, todos van a jugador1 de la siguiente ronda
-              nextPartido.jugador1 = jugadorGanador;
-            } else {
-              // En rondas impares, depende del número de partido
-              if (partidoIdNum % 2 === 1) {
-                nextPartido.jugador1 = jugadorGanador;
-              } else {
-                nextPartido.jugador2 = jugadorGanador;
-              }
-            }
-          }
-        }
-      } else {
-        // Si es la final del losers bracket, actualizar la gran final
-        bracket.final.jugador2 = jugadorGanador;
       }
     }
   };
