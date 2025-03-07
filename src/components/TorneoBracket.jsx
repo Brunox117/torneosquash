@@ -141,7 +141,7 @@ const TorneoBracket = () => {
     
     // Configurar el losers bracket con rondas vacías
     // El número de rondas del losers bracket es aproximadamente el doble del winners bracket
-    const numRondasLosers = numRondas * 2 - 1;
+    const numRondasLosers = numRondas * 2 - 2;
     
     for (let r = 0; r < numRondasLosers; r++) {
       const ronda = [];
@@ -149,11 +149,11 @@ const TorneoBracket = () => {
       let numPartidos;
       
       if (r % 2 === 0) {
-        // Rondas pares: reciben a los perdedores del winners bracket
-        numPartidos = Math.max(1, Math.pow(2, Math.floor((numRondas - r/2) - 1)));
+        const exponent = (numRondas - 1) - (r / 2) - 1;
+        numPartidos = Math.max(1, Math.pow(2, exponent));
       } else {
-        // Rondas impares: enfrentamientos entre los ganadores de la ronda anterior
-        numPartidos = Math.max(1, Math.pow(2, Math.floor((numRondas - (r+1)/2) - 1)));
+        const exponent = (numRondas - 1) - ((r + 1) / 2) - 1;
+        numPartidos = Math.max(1, Math.pow(2, exponent));
       }
       
       for (let m = 0; m < numPartidos; m++) {
